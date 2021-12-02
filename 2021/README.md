@@ -29,4 +29,4 @@ And install requirements
 
 ## Step 4. Execute test
 
-`python -m unittest`
+`pytest --no-header -vv`
