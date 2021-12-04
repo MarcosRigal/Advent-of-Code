@@ -1,56 +1,80 @@
 def readFile():
-    with open('2021/Day3/input.txt', 'r') as file:
-        numbers = [[int(bit) for bit in number.split('\n')[0]]
-                   for number in file]
-    return numbers
+    matrixes = []
+    with open('2021/Day4/input.txt', 'r') as file:
+        numbers = [int(number)
+                   for number in file.readline().split('\n')[0].split(",")]
+        for line in file:
+            newMatrix = []
+            row1 = {int(number): 0 for number in file.readline().split(
+                '\n')[0].split(" ")}
+            newMatrix.append(row1)
+            row2 = {int(number): 0 for number in file.readline().split(
+                '\n')[0].split(" ")}
+            newMatrix.append(row2)
+            row3 = {int(number): 0 for number in file.readline().split(
+                '\n')[0].split(" ")}
+            newMatrix.append(row3)
+            row4 = {int(number): 0 for number in file.readline().split(
+                '\n')[0].split(" ")}
+            newMatrix.append(row4)
+            row5 = {int(number): 0 for number in file.readline().split(
+                '\n')[0].split(" ")}
+            newMatrix.append(row5)
+            matrixes.append(newMatrix)
+        return [numbers, matrixes]
 
 
-def countNumbers(numbers):
-    frecuencies = {0: {0: 0, 1: 0}, 1: {0: 0, 1: 0}, 2: {0: 0, 1: 0}, 3: {0: 0, 1: 0}, 4: {0: 0, 1: 0}, 5: {
-        0: 0, 1: 0}, 6: {0: 0, 1: 0}, 7: {0: 0, 1: 0}, 8: {0: 0, 1: 0}, 9: {0: 0, 1: 0}, 10: {0: 0, 1: 0}, 11: {0: 0, 1: 0}}
-    for i in range(12):
-        for number in numbers:
-            if number[i] == 0:
-                frecuencies[i][0] += 1
-            else:
-                frecuencies[i][1] += 1
-    return frecuencies
+def checkMatrixes(matrixes):
+    solvedMatrixes = []
+    for matrix in matrixes:
+        # CHECK ROW
+        for i in range(5):
+            if sum(matrix[i].values()) == 5:
+                solvedMatrixes.append(matrix)
+        # CHECK COLUM
+        row1 = list(matrix[0].values())
+        row2 = list(matrix[1].values())
+        row3 = list(matrix[2].values())
+        row4 = list(matrix[3].values())
+        row5 = list(matrix[4].values())
+        for i in range(5):
+            if (row1[i]+row2[i]+row3[i]+row4[i]+row5[i]) == 5:
+                solvedMatrixes.append(matrix)
+    if solvedMatrixes:
+        return solvedMatrixes
+    else:
+        return None
 
 
-def getOxigen():
-    numbers = readFile()
-    frecuencies = countNumbers(numbers)
-    number = ""
-    for i in range(12):
-        if not(frecuencies[i][0] == 0 and frecuencies[i][1] == 1 or frecuencies[i][0] == 1 and frecuencies[i][1] == 0):
-            if frecuencies[i][0] > frecuencies[i][1]:
-                number += "0"
-                numbers = [number for number in numbers if number[i] != 1]
-            else:
-                number += "1"
-                numbers = [number for number in numbers if number[i] != 0]
-            frecuencies = countNumbers(numbers)
-        if (frecuencies[i][0] == 0 and frecuencies[i][1] == 1 or frecuencies[i][0] == 1 and frecuencies[i][1] == 0):
-            return numbers
-
-    return numbers
+def getUnmarkedSum(matrix):
+    sum = 0
+    for row in matrix:
+        for key in row:
+            if row[key] == 0:
+                sum += key
+    return sum
 
 
-def getCO2():
-    numbers = readFile()
-    frecuencies = countNumbers(numbers)
-    for i in range(12):
-        if frecuencies[i][1] < frecuencies[i][0]:
-            numbers = [number for number in numbers if number[i] != 0]
-        else:
-            numbers = [number for number in numbers if number[i] != 1]
-        frecuencies = countNumbers(numbers)
-        if (frecuencies[i][0] == 0 and frecuencies[i][1] == 1 or frecuencies[i][0] == 1 and frecuencies[i][1] == 0):
-            return numbers
+fileInput = readFile()
+numbers = fileInput[0]
+matrixes = fileInput[1]
+answer = None
+answers = []
+num = 0
+for number in numbers:
+    for matrix in matrixes:
+        for row in matrix:
+            for key in row:
+                if key == number:
+                    row[key] = 1
+    answer = checkMatrixes(matrixes)
+    if answer != None:
+        num = number
+        for matrix in answer:
+            answers.append(matrix)
+            try:
+                matrixes.remove(matrix)
+            except:
+                True
 
-    return numbers
-
-
-oxigen = "".join(str(bit) for bit in getOxigen()[0])
-co2 = "".join(str(bit) for bit in getCO2()[0])
-print(int(oxigen,2) * int(co2,2))
+print(num*getUnmarkedSum(answers[len(answers)-1]))
